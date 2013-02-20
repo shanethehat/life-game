@@ -3,6 +3,8 @@ Game of Life
 
 Simple Life simulator based on the Conway rules (http://en.wikipedia.org/wiki/Conway's_Game_of_Life).
 
+[![Build Status](https://secure.travis-ci.org/shanethehat/life-game.png?branch=master)](http://travis-ci.org/shanethehat/life-game)
+
 Composer
 --------
 
