@@ -44,6 +44,53 @@ class Board
     }
 
     /**
+     * Set up a new randomly populated board from the supplied dimensions
+     *
+     * @param int $width  Width of the grid (3 min)
+     * @param int $height Height of the grid (3 min)
+     *
+     * @throws \Life\Exception\BoardException
+     * @return void
+     */
+    public function createRandomGrid($width, $height)
+    {
+        if (!is_int($width) || $width < 3) {
+            throw new BoardException("Width must be an integer of 3 or more, $width provided");
+        }
+
+        if (!is_int($height) || $height < 3) {
+            throw new BoardException("Height must be an integer of 3 or more, $height provided");
+        }
+
+        $grid = array();
+
+        for ($i = 0; $i < $height; $i++) {
+            $grid[] = $this->createRandomGridRow($width);
+        }
+
+        $this->grid = $grid;
+    }
+
+    /**
+     * Returns an array of length $length, filled with randomly chosen 1 and 0
+     *
+     * @param int $length Size of row
+     *
+     * @return array
+     */
+    protected function createRandomGridRow($length)
+    {
+        $row = array();
+
+        for ($i = 0; $i < $length; $i++) {
+            $row[] = mt_rand(0, 1);
+        }
+
+        return $row;
+    }
+
+
+    /**
      * Returns the grid array
      *
      * @return array
