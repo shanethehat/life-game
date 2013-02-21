@@ -14,19 +14,19 @@ class BoardTest extends PHPUnit_Framework_TestCase
     /**
      * Test that the grid starts empty
      *
-     * @covers \Life\Board::getGrid
+     * @covers \Life\Board::count
      */
     public function testGridStartsEmpty()
     {
         $board = new \Life\Board();
-        $this->assertNull($board->getGrid());
+        $this->assertEquals(0, $board->count());
     }
 
     /**
      * Test that the expected exception is thrown when trying to create a grid 
      * from a file that doesn't exist.
      *
-     * @covers \Life\Board::createGridFromFile
+     * @covers \Life\Board::createFromFile
      */
     public function testCreateWithMissingFileException()
     {
@@ -37,13 +37,13 @@ class BoardTest extends PHPUnit_Framework_TestCase
             'Failed to create grid from file'
         );
 
-        $board->createGridFromFile('thisfiledoesnotexist.txt');
+        $board->createFromFile('thisfiledoesnotexist.txt');
     }
 
     /**
      * Test the expected grid is generated from a valid sample file
      *
-     * @covers \Life\Board::createGridFromFile
+     * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
      * @covers \Life\Board::getValidLine
      * @covers \Life\Board::validateLine
@@ -51,8 +51,13 @@ class BoardTest extends PHPUnit_Framework_TestCase
     public function testGridFromValidFile()
     {
         $board = new \Life\Board();
+        
+        $expected = new \Life\Board();
+        $refClass = new ReflectionClass($expected);
+        $grid = $refClass->getProperty('grid');
+        $grid->setAccessible(true);
 
-        $expected = array( 
+        $testGrid = array( 
             array('0', '0', '1', '0', '0', '0', '0', '0'),            
             array('0', '0', '1', '1', '0', '0', '1', '0'),
             array('0', '0', '1', '0', '0', '1', '0', '0'),
@@ -62,16 +67,18 @@ class BoardTest extends PHPUnit_Framework_TestCase
             array('0', '0', '1', '0', '1', '0', '1', '0'),
             array('0', '0', '0', '1', '1', '0', '0', '1')
         );
+
+        $grid->setValue($expected, $testGrid);
         
-        $board->createGridFromFile('boards/valid.txt');
-        $this->assertEquals($expected, $board->getGrid());
+        $board->createFromFile('boards/valid.txt');
+        $this->assertEquals($expected, $board);
     }
 
     /**
      * Test that grid generation fails when the line lengths in the supplied 
      * file do not match
      *
-     * @covers \Life\Board::createGridFromFile
+     * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
      * @covers \Life\Board::getValidLine
      * @covers \Life\Board::validateLine
@@ -81,7 +88,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
         $board = new \Life\Board();
 
         try {
-            $board->createGridFromFile('boards/short-length.txt');
+            $board->createFromFile('boards/short-length.txt');
         } catch (\Life\Exception\BoardException $exception) {
             $this->assertEquals('Failed to create grid from file', $exception->getMessage());
             $previous = $exception->getPrevious();
@@ -101,7 +108,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
      * Test that grid generation fails when the line lengths in the supplied 
      * file do not match
      *
-     * @covers \Life\Board::createGridFromFile
+     * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
      * @covers \Life\Board::getValidLine
      * @covers \Life\Board::validateLine
@@ -111,7 +118,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
         $board = new \Life\Board();
 
         try {
-            $board->createGridFromFile('boards/long-length.txt');
+            $board->createFromFile('boards/long-length.txt');
         } catch (\Life\Exception\BoardException $exception) {
             $this->assertEquals('Failed to create grid from file', $exception->getMessage());
             $previous = $exception->getPrevious();
@@ -130,7 +137,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
     /**
      * Test that grid generation fails when an unexpected character is found
      *
-     * @covers \Life\Board::createGridFromFile
+     * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
      * @covers \Life\Board::getValidLine
      * @covers \Life\Board::validateLine
@@ -140,7 +147,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
         $board = new \Life\Board();
 
         try {
-            $board->createGridFromFile('boards/bad-character.txt');
+            $board->createFromFile('boards/bad-character.txt');
         } catch (\Life\Exception\BoardException $exception) {
             $this->assertEquals('Failed to create grid from file', $exception->getMessage());
             $previous = $exception->getPrevious();
@@ -158,7 +165,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
     /**
      * Test that create random grid fails with a width less than 3
      *
-     * @covers \Life\Board::createRandomGrid
+     * @covers \Life\Board::createRandom
      */
     public function testCreateRandomFailsOnSmallWidth()
     {
@@ -168,13 +175,13 @@ class BoardTest extends PHPUnit_Framework_TestCase
         );
 
         $board = new \Life\Board();
-        $board->createRandomGrid(2, 3);
+        $board->createRandom(2, 3);
     }
 
     /**
      * Test that create random grid fails with a non-integer width
      *
-     * @covers \Life\Board::createRandomGrid
+     * @covers \Life\Board::createRandom
      */
     public function testCreateRandomFailsOnNonIntWidth()
     {
@@ -184,13 +191,13 @@ class BoardTest extends PHPUnit_Framework_TestCase
         );
 
         $board = new \Life\Board();
-        $board->createRandomGrid('a', 3);
+        $board->createRandom('a', 3);
     }
 
     /**
      * Test that create random grid fails with a height less than 3
      *
-     * @covers \Life\Board::createRandomGrid
+     * @covers \Life\Board::createRandom
      */
     public function testCreateRandomFailsOnSmallHeight()
     {
@@ -200,13 +207,13 @@ class BoardTest extends PHPUnit_Framework_TestCase
         );
 
         $board = new \Life\Board();
-        $board->createRandomGrid(3, 2);
+        $board->createRandom(3, 2);
     }
 
     /**
      * Test that create random grid fails with a non-integer height
      *
-     * @covers \Life\Board::createRandomGrid
+     * @covers \Life\Board::createRandom
      */
     public function testCreateRandomFailsOnNonIntHeight()
     {
@@ -216,26 +223,24 @@ class BoardTest extends PHPUnit_Framework_TestCase
         );
 
         $board = new \Life\Board();
-        $board->createRandomGrid(3, 'b');
+        $board->createRandom(3, 'b');
     }
 
     /**
      * Test that create random grid creates a grid to the specified dimensions
      *
-     * @covers \Life\Board::createRandomGrid
+     * @covers \Life\Board::createRandom
      * @covers \Life\Board::createRandomGridRow
+     * @covers \Life\Board::count
      */
     public function testRandomGridDimensions()
     {
         $board = new \Life\Board();
-        $board->createRandomGrid(6, 5);
+        $board->createRandom(6, 5);
 
-        $grid = $board->getGrid();
+        $this->assertEquals(5, $board->count());
 
-        $this->assertInternalType('array', $grid);
-        $this->assertCount(5, $grid);
-
-        foreach ($grid as $row) {
+        foreach ($board as $row) {
             $this->assertInternalType('array', $row);
             $this->assertCount(6, $row);
         }
@@ -244,15 +249,15 @@ class BoardTest extends PHPUnit_Framework_TestCase
     /**
      * Test that create random grid only returns 1 and 0 in the grid
      *
-     * @covers \Life\Board::createRandomGrid
+     * @covers \Life\Board::createRandom
      * @covers \Life\Board::createRandomGridRow
      */
     public function testRandomGridContents()
     {
         $board = new \Life\Board();
-        $board->createRandomGrid(3, 3);
+        $board->createRandom(3, 3);
 
-        foreach ($board->getGrid() as $row) {
+        foreach ($board as $row) {
             $filtered = array_filter($row, function ($element) {
                 return ($element !== 0 && $element !== 1);
             });

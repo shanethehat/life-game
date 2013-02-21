@@ -16,9 +16,17 @@ use Life\Exception\BoardException;
  * Board class
  */
 
-class Board
+class Board implements \Iterator, \ArrayAccess
 {
-    protected $grid;
+    /**
+     * @var array
+     */
+    protected $grid = array();
+
+    /**
+     * @var int
+     */
+    protected $position = 0;
 
     /**
      * Set up a new board from a text file.
@@ -31,7 +39,7 @@ class Board
      * @throws \Life\Exception\BoardException
      * @return void
      */
-    public function createGridFromFile($filename)
+    public function createFromFile($filename)
     {
         try {
             $file = new \SplFileObject($filename);
@@ -52,7 +60,7 @@ class Board
      * @throws \Life\Exception\BoardException
      * @return void
      */
-    public function createRandomGrid($width, $height)
+    public function createRandom($width, $height)
     {
         if (!is_int($width) || $width < 3) {
             throw new BoardException("Width must be an integer of 3 or more, $width provided");
@@ -88,18 +96,6 @@ class Board
 
         return $row;
     }
-
-
-    /**
-     * Returns the grid array
-     *
-     * @return array
-     */
-    public function getGrid()
-    {
-        return $this->grid;
-    }
-
 
     /**
      * Set the contents of the grid using the contents of the file
@@ -173,6 +169,115 @@ class Board
         return true;
     }
 
+    /**
+     * Returns the contents of $this->grid at $this->position
+     *
+     * @return array
+     */
+    public function current()
+    {
+        return $this->grid[$this->position];
+    }
 
+    /**
+     * Returns the current position
+     *
+     * @return int
+     */
+    public function key()
+    {
+        return $this->position;
+    }
+
+    /**
+     * Moves the position on the the next index
+     *
+     * @return void
+     */
+    public function next()
+    {
+        $this->position += 1;
+    }
+
+    /**
+     * Resets the position to the start
+     *
+     * @return void
+     */
+    public function rewind()
+    {
+        $this->position = 0;
+    }
+
+    /**
+     * Tests if the current position is a valid index
+     *
+     * @return boolean
+     */
+    public function valid()
+    {
+        return $this->offsetExists($this->position);
+    }
+
+    /**
+     * Tests if the supplied offset exists
+     * 
+     * @param int $offset Grid row
+     *
+     * @return boolean
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->grid[$offset]);
+    }
+
+    /**
+     * Return a value for a given offset
+     *
+     * @param int $offset Grid row
+     *
+     * @return array|null
+     */
+    public function offsetGet($offset)
+    {
+        return $this->offsetExists($offset) ? $this->grid[$offset] : null;
+    }
+
+    /**
+     * Set a value of the grid - Not permitted
+     *
+     * @param int   $offset Grid Row
+     * @param mixed $value  New value
+     *
+     * @throws \Life\Exception\BoardException
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+        throw new BoardException('Single rows of the board may not be modified externally');
+    }
+
+    /**
+     * Unset a grid value - not permitted
+     *
+     * @param int $offset Grid row
+     * 
+     * @throws \Life\Exception\BoardException
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+        throw new BoardException('Single rows of the board may not be modified externally');
+    }
+
+    /**
+     * Return the height of the grid
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->grid);
+    }
 }
 

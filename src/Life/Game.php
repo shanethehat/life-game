@@ -48,7 +48,7 @@ class Game
             if (!isset($args[$keys[0] + 1])) {
                 throw new \RuntimeException('Missing filename argument');
             }
-            $this->createFromFile($args[$keys[0] + 1]);
+            $this->getBoard()->createFromFile($args[$keys[0] + 1]);
         }
     }
 
@@ -63,6 +63,21 @@ class Game
             $this->board = new Board();
         }
         return $this->board;
+    }
+
+    /**
+     * Trigger the board to update with a new generation
+     *
+     * @return void
+     */
+    public function takeTurn()
+    {
+        try {
+            $this->getBoard()->nextGeneration();
+        } catch (Exception $exception) {
+            // @todo need better exception handling
+            throw $exception;
+        }
     }
 }
 
