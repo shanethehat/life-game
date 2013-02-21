@@ -19,7 +19,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
     public function testGridStartsEmpty()
     {
         $board = new \Life\Board();
-        $this->assertEquals(0, $board->count());
+        $this->assertCount(0, $board);
     }
 
     /**
@@ -45,30 +45,26 @@ class BoardTest extends PHPUnit_Framework_TestCase
      *
      * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
-     * @covers \Life\Board::getValidLine
-     * @covers \Life\Board::validateLine
+     * @covers \Life\Board::setGrid
      */
     public function testGridFromValidFile()
     {
         $board = new \Life\Board();
         
         $expected = new \Life\Board();
-        $refClass = new ReflectionClass($expected);
-        $grid = $refClass->getProperty('grid');
-        $grid->setAccessible(true);
 
         $testGrid = array( 
-            array('0', '0', '1', '0', '0', '0', '0', '0'),            
-            array('0', '0', '1', '1', '0', '0', '1', '0'),
-            array('0', '0', '1', '0', '0', '1', '0', '0'),
-            array('0', '1', '1', '0', '0', '1', '1', '0'),
-            array('0', '1', '1', '1', '1', '0', '1', '1'),
-            array('0', '0', '1', '1', '0', '0', '1', '1'),
-            array('0', '0', '1', '0', '1', '0', '1', '0'),
-            array('0', '0', '0', '1', '1', '0', '0', '1')
+            array(0, 0, 1, 0, 0, 0, 0, 0),            
+            array(0, 0, 1, 1, 0, 0, 1, 0),
+            array(0, 0, 1, 0, 0, 1, 0, 0),
+            array(0, 1, 1, 0, 0, 1, 1, 0),
+            array(0, 1, 1, 1, 1, 0, 1, 1),
+            array(0, 0, 1, 1, 0, 0, 1, 1),
+            array(0, 0, 1, 0, 1, 0, 1, 0),
+            array(0, 0, 0, 1, 1, 0, 0, 1)
         );
 
-        $grid->setValue($expected, $testGrid);
+        $expected->setGrid($testGrid);
         
         $board->createFromFile('boards/valid.txt');
         $this->assertEquals($expected, $board);
@@ -80,8 +76,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
      *
      * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
-     * @covers \Life\Board::getValidLine
-     * @covers \Life\Board::validateLine
+     * @covers \Life\Board::setGrid
      */
     public function testGridCreateFailsWithShortLineLength()
     {
@@ -94,7 +89,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
             $previous = $exception->getPrevious();
             $this->assertInstanceOf('\Life\Exception\BoardException', $previous);
             $this->assertEquals(
-                'File read failed on line 3 with message "Line length is 7, 8 expected"',
+                'The width of row 3 is 7, 8 expected',
                 $previous->getMessage()
             );
             return;
@@ -110,8 +105,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
      *
      * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
-     * @covers \Life\Board::getValidLine
-     * @covers \Life\Board::validateLine
+     * @covers \Life\Board::setGrid
      */
     public function testGridCreateFailsWithLongLineLength()
     {
@@ -124,7 +118,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
             $previous = $exception->getPrevious();
             $this->assertInstanceOf('\Life\Exception\BoardException', $previous);
             $this->assertEquals(
-                'File read failed on line 6 with message "Line length is 9, 8 expected"',
+                'The width of row 6 is 9, 8 expected',
                 $previous->getMessage()
             );
             return;
@@ -139,8 +133,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
      *
      * @covers \Life\Board::createFromFile
      * @covers \Life\Board::getGridFromFile
-     * @covers \Life\Board::getValidLine
-     * @covers \Life\Board::validateLine
+     * @covers \Life\Board::setGrid
      */
     public function testGridCreateFailsWithUnexpectedCharacter()
     {
@@ -153,7 +146,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
             $previous = $exception->getPrevious();
             $this->assertInstanceOf('\Life\Exception\BoardException', $previous);
             $this->assertEquals(
-                'File read failed on line 4 with message "Encountered unexpected character: a"',
+                'Unexpected content in row 3',
                 $previous->getMessage()
             );
             return;
@@ -238,7 +231,7 @@ class BoardTest extends PHPUnit_Framework_TestCase
         $board = new \Life\Board();
         $board->createRandom(6, 5);
 
-        $this->assertEquals(5, $board->count());
+        $this->assertCount(5, $board);
 
         foreach ($board as $row) {
             $this->assertInternalType('array', $row);
@@ -263,5 +256,47 @@ class BoardTest extends PHPUnit_Framework_TestCase
             });
             $this->assertEmpty($filtered);
         }
+    }
+    
+    /**
+     * Test the isDead method returns false when a single cell is alive
+     *
+     * @covers \Life\Board::isDead
+     * @covers \Life\Board::setGrid
+     */
+    public function testIsDeadWhenAlive()
+    {
+        $board = new \Life\Board();
+        
+        $grid = array( 
+            array(0, 0, 0),            
+            array(0, 0, 0),
+            array(0, 1, 0),
+        );
+
+        $board->setGrid($grid);
+
+        $this->assertFalse($board->isDead());
+    }
+        
+    /**
+     * Test the isDead method returns true when no cells are alive
+     *
+     * @covers \Life\Board::isDead
+     * @covers \Life\Board::setGrid
+     */
+    public function testIsDeadWhenDead()
+    {
+        $board = new \Life\Board();
+        
+        $grid = array( 
+            array(0, 0, 0),            
+            array(0, 0, 0),
+            array(0, 0, 0),
+        );
+
+        $board->setGrid($grid);
+
+        $this->assertTrue($board->isDead());
     }
 }

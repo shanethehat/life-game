@@ -16,7 +16,7 @@ use Life\Exception\BoardException;
  * Board class
  */
 
-class Board implements \Iterator, \ArrayAccess
+class Board implements \Iterator, \ArrayAccess, \Countable
 {
     /**
      * @var array
@@ -44,7 +44,7 @@ class Board implements \Iterator, \ArrayAccess
         try {
             $file = new \SplFileObject($filename);
 
-            $this->grid = $this->getGridFromFile($file);
+            $this->setGrid($this->getGridFromFile($file));
 
         } catch (\Exception $exception) {
             throw new BoardException('Failed to create grid from file', $exception);
@@ -74,6 +74,48 @@ class Board implements \Iterator, \ArrayAccess
 
         for ($i = 0; $i < $height; $i++) {
             $grid[] = $this->createRandomGridRow($width);
+        }
+
+        $this->grid = $grid;
+    }
+
+    /**
+     * Set a new multi-dimensional array as the grid
+     *
+     * @param array $grid New grid
+     *
+     * @return void
+     */
+    public function setGrid(array $grid)
+    {
+        foreach ($grid as $row) {
+            if (!is_array($row)) {
+                throw new BoardException('Supplied grid must only contain arrays');
+            }
+        }
+
+        if (count($grid) < 3) {
+            throw new BoardException('Supplied grid must be at least 3 rows high');
+        }
+
+        if (($width = count($grid[0])) < 3) {
+            throw new BoardException('Supplied grid must be at least 3 columns wide');
+        }
+        
+        for ($i = 0, $count = count($grid); $i < $count; $i++) {
+            $row = $grid[$i];
+
+            if (($rowWidth = count($row)) !== $width) {
+                throw new BoardException("The width of row " . ($i + 1) . " is $rowWidth, $width expected");
+            }
+
+            $filtered = array_filter($row, function ($item) {
+                return ($item !== 0 && $item !== 1);
+            });
+
+            if (count($filtered)) {
+                throw new BoardException('Unexpected content in row ' . $i);
+            }
         }
 
         $this->grid = $grid;
@@ -111,63 +153,18 @@ class Board implements \Iterator, \ArrayAccess
         }
         // temporary grid container
         $grid = array();
-        // grab the first line to get an expected line length
-        $line = trim($file->fgets());
-        $length = strlen($line);
-        try {
-            // get the first line
-            $grid[] = $this->getValidLine($line, $length);
-            // get the remaining lines using the length of the first as a validation guide
-            while ($line = $file->fgets()) {
-                $grid[] = $this->getValidLine(trim($line), $length);
-            }
-        } catch (BoardException $exception) {
-            throw new BoardException(
-                sprintf('File read failed on line %d with message "%s"', $file->key() + 1, $exception->getMessage()),
-                $exception
-            );
+        
+        while ($line = $file->fgets()) {
+            $row = str_split(trim($line));
+            array_walk($row, function (&$item, $index) {
+                $item = ($item === '1' || $item === '0') ? (int) $item : $item;
+            });
+            $grid[] = $row;
         }
+
         return $grid;
     }
 
-    /**
-     * Returns an array of 1 and 0 characters representing a line of the grid
-     *
-     * @param string $line   Line of a file
-     * @param int    $length Expected file length
-     *
-     * @return array
-     */
-    protected function getValidLine($line, $length)
-    {
-        if ($this->validateLine($line, $length)) {
-            return str_split($line);
-        }
-        return array();
-    }
-
-    /**
-     * Validates a single line of a file to ensure the length and content are correct
-     *
-     * @param string $line   Line of a file
-     * @param int    $length Expected line length
-     *
-     * @throws \Life\Exception\BoardException
-     * @return boolean
-     */
-    protected function validateLine($line, $length)
-    {
-        $lineLength = strlen($line);
-        if ($lineLength !== $length) {
-            throw new BoardException("Line length is $lineLength, $length expected");
-        }
-        // attempt to match the first character in the line that is not a 1 or 0
-        $matches = array();
-        if (preg_match('/[^10]+/', $line, $matches)) {
-            throw new BoardException('Encountered unexpected character: ' . $matches[0]);
-        }        
-        return true;
-    }
 
     /**
      * Returns the contents of $this->grid at $this->position
@@ -278,6 +275,22 @@ class Board implements \Iterator, \ArrayAccess
     public function count()
     {
         return count($this->grid);
+    }
+
+    /**
+     * Tests if every cell in the grid is dead (0)
+     *
+     * @return boolean
+     */
+    public function isDead()
+    {
+        foreach ($this->grid as $row) {
+            if (in_array(1, $row)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
