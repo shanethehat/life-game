@@ -16,40 +16,49 @@ namespace Life;
 
 class Game
 {
-    protected $args;
-
     protected $board;
 
     /**
-     * Constructor takes the command line arguments
+     * Constructor accepts an $options array for quickstart
      * 
-     * @param array $args Command line arguments
+     * @param array $options Config options
      *
      * @return void
      */
-    public function __construct(array $args = null)
+    public function __construct(array $options = null)
     {
-        if (is_array($args)) {
-            $this->parseArgs($args);
+        if (is_array($options)) {
+            $this->newGame($options);
         }
     }
 
     /**
-     * Process an array of arguments to set up the game
+     * Start a new session, either with grid dimensions or a seed file,
+     * as defined in the passed config object.
      *
-     * @param array $args Array of arguments
+     * @param array $options Options array
      *
-     * @return void
+     * @return \Life\Game
      */
-    protected function parseArgs(array $args)
+    public function newGame(array $options)
     {
-        if (in_array('-f', $args)) {
-            $keys = array_keys($args, '-f');
-            if (!isset($args[$keys[0] + 1])) {
-                throw new \RuntimeException('Missing filename argument');
-            }
-            $this->getBoard()->createFromFile($args[$keys[0] + 1]);
+        // test for a seed file first
+        if (in_array('file', $options)) {
+            $this->getBoard()->createFromFile($options['file']);
+            return $this;
         }
+        // check for a manually defined array
+        if (in_array('grid', $options)) {
+            $this->getBoard()->setGrid($options('grid');
+            return $this;
+        }
+        // check for dimensions
+        if (in_array('width', $options) && in_array('height', $options)) {
+            $this->getBoard()->createRandom($options['width'], $options['height']);
+            return $this;
+        }
+        // required options not satisfied, fail
+        throw new \BadMethodCallException('Supplied options must define either a file or dimensions');
     }
 
     /**
@@ -68,7 +77,7 @@ class Game
     /**
      * Trigger the board to update with a new generation
      *
-     * @return void
+     * @return \Life\Game
      */
     public function takeTurn()
     {
@@ -78,6 +87,7 @@ class Game
             // @todo need better exception handling
             throw $exception;
         }
+        return $this;
     }
 }
 

@@ -315,5 +315,29 @@ class Board implements \Iterator, \ArrayAccess, \Countable
     {
         return count($this);
     }
+
+    /**
+     * To string implementation
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $output = '';
+        foreach ($this as $row) {
+            $output = implode(', ', $row) . PHP_EOL;
+        }
+        return $output;
+    }
+
+    /**
+     * To string helper method (proxies to __toString
+     *
+     * @return $string
+     */
+    public function toString()
+    {
+        return $this->__toString();
+    }
 }
 
