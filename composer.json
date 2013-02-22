@@ -4,6 +4,7 @@
     "description": "Simple version of Conway's Life game",
     "keywords": ["life", "conway"],
     "homepage": "https://github.com/shanethehat/life-game",
+    "license": "MIT",
     "authors": [
         {
             "name": "Shane Auckland",
