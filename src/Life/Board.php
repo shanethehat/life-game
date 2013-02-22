@@ -292,5 +292,28 @@ class Board implements \Iterator, \ArrayAccess, \Countable
 
         return true;
     }
+
+    /**
+     * Returns the width of the grid
+     *
+     * @return int
+     */
+    public function getWidth()
+    {
+        if (!count($this)) {
+            return 0;
+        }
+        return count($this[0]);
+    }
+
+    /**
+     * Returns the height of the grid
+     *
+     * @return int
+     */
+    public function getHeight()
+    {
+        return count($this);
+    }
 }
 
