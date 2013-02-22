@@ -18,6 +18,8 @@ class Game
 {
     protected $board;
 
+    protected $engine;
+
     /**
      * Constructor accepts an $options array for quickstart
      * 
@@ -49,7 +51,7 @@ class Game
         }
         // check for a manually defined array
         if (array_key_exists('grid', $options)) {
-            $this->getBoard()->setGrid($options('grid'));
+            $this->getBoard()->setGrid($options['grid']);
             return $this;
         }
         // check for dimensions
@@ -75,6 +77,19 @@ class Game
     }
 
     /**
+     * Lazy-load and return the engine
+     *
+     * @return \Life\Engine
+     */
+    protected function getEngine()
+    {
+        if (is_null($this->engine)) {
+            $this->engine = new Engine();
+        }
+        return $this->engine;
+    }
+
+    /**
      * Trigger the board to update with a new generation
      *
      * @return \Life\Game
@@ -82,7 +97,7 @@ class Game
     public function takeTurn()
     {
         try {
-            $this->getBoard()->nextGeneration();
+            $this->getEngine()->updateGeneration($this->getBoard());
         } catch (Exception $exception) {
             // @todo need better exception handling
             throw $exception;
