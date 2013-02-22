@@ -49,7 +49,7 @@ class Game
         }
         // check for a manually defined array
         if (in_array('grid', $options)) {
-            $this->getBoard()->setGrid($options('grid');
+            $this->getBoard()->setGrid($options('grid'));
             return $this;
         }
         // check for dimensions
