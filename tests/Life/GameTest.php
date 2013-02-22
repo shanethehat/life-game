@@ -9,21 +9,28 @@ class GameTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $game = new \Life\Game(array());
+        $game = new \Life\Game();
         $this->assertInstanceOf('\Life\Game', $game);
     }
 
     /**
-     * Test that an exception is thrown when the -f argument is provided
-     * and not followed by a filename argument.
+     * Test that a board of expected size is generated when a valid width and 
+     * height are supplied
      *
      * @covers \Life\Game::__construct
-     * @covers \Life\Game::parseArgs
+     * @covers \Life\Game::newGame
      */
-    public function testMissingFilenameException()
+    public function testWithWidthAndHeight()
     {
-        $this->setExpectedException('RuntimeException', 'Missing filename argument');
+        $game = new \Life\Game(
+            array(
+                'width' => 5,
+                'height' => 6
+            )
+        );
 
-        $game = new \Life\Game(array('-f'));
+        $this->assertInstanceOf('\Life\Board', $game->getBoard());
+        $this->assertEquals(5, $game->getBoard()->getWidth());
+        $this->assertEquals(6, $game->getBoard()->getHeight());
     }
 }

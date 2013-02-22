@@ -43,17 +43,17 @@ class Game
     public function newGame(array $options)
     {
         // test for a seed file first
-        if (in_array('file', $options)) {
+        if (array_key_exists('file', $options)) {
             $this->getBoard()->createFromFile($options['file']);
             return $this;
         }
         // check for a manually defined array
-        if (in_array('grid', $options)) {
+        if (array_key_exists('grid', $options)) {
             $this->getBoard()->setGrid($options('grid'));
             return $this;
         }
         // check for dimensions
-        if (in_array('width', $options) && in_array('height', $options)) {
+        if (array_key_exists('width', $options) && array_key_exists('height', $options)) {
             $this->getBoard()->createRandom($options['width'], $options['height']);
             return $this;
         }
