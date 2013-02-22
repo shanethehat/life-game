@@ -299,4 +299,28 @@ class BoardTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($board->isDead());
     }
+
+    /**
+     * Test the toString functionality
+     *
+     * @covers \Life\Board::__toString
+     */
+    public function testToString()
+    {
+        $expected = '0, 0, 0' . PHP_EOL;
+        $expected .= '0, 0, 0' . PHP_EOL;
+        $expected .= '0, 0, 0' . PHP_EOL;
+
+        $board = new \Life\Board();
+
+        $board->setGrid(array(
+            array(0, 0, 0),
+            array(0, 0, 0),
+            array(0, 0, 0)
+        ));
+
+        $this->assertEquals($expected, (string) $board);
+        $this->assertEquals($expected, $board->__toString());
+        $this->assertEquals($expected, $board->toString());
+    }
 }

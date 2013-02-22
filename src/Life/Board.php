@@ -325,7 +325,7 @@ class Board implements \Iterator, \ArrayAccess, \Countable
     {
         $output = '';
         foreach ($this as $row) {
-            $output = implode(', ', $row) . PHP_EOL;
+            $output .= implode(', ', $row) . PHP_EOL;
         }
         return $output;
     }
