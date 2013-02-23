@@ -145,6 +145,7 @@ class EngineTest extends PHPUnit_Framework_TestCase
         $board->setGrid($seed);
 
         $expected = new \Life\Board();
+        $expected->setGrid($seed);
         $expected->setGrid($result);
 
         $engine = new \Life\Engine();
