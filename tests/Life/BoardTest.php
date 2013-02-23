@@ -323,4 +323,62 @@ class BoardTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $board->__toString());
         $this->assertEquals($expected, $board->toString());
     }
+    
+    /**
+     * Test that two distinct grids are not boring
+     * 
+     * @covers \Life\Board::setGrid
+     * @covers \Life\Board::isBoring
+     */
+    public function testDistinctGridsNotBoring()
+    {
+        $board = new \Life\Board();
+        
+        $board->setGrid(
+            array(
+                array(1, 0, 0),
+                array(0, 1, 0),
+                array(0, 0, 0)
+            )
+        );
+        
+        $board->setGrid(
+            array(
+                array(0, 0, 0),
+                array(0, 1, 0),
+                array(0, 1, 0)
+            )
+        );
+        
+        $this->assertFalse($board->isBoring());
+    }
+    
+    /**
+     * Test that two identical grids are boring
+     * 
+     * @covers \Life\Board::setGrid
+     * @covers \Life\Board::isBoring
+     */
+    public function testIdenticalGridsAreBoring()
+    {
+        $board = new \Life\Board();
+        
+        $board->setGrid(
+            array(
+                array(1, 0, 0),
+                array(0, 1, 0),
+                array(0, 0, 0)
+            )
+        );
+        
+        $board->setGrid(
+            array(
+                array(1, 0, 0),
+                array(0, 1, 0),
+                array(0, 0, 0)
+            )
+        );
+        
+        $this->assertTrue($board->isBoring());
+    }
 }

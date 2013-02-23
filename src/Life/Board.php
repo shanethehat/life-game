@@ -22,6 +22,11 @@ class Board implements \Iterator, \ArrayAccess, \Countable
      * @var array
      */
     protected $grid = array();
+    
+    /**
+     * @var array
+     */
+    protected $previous = array();
 
     /**
      * @var int
@@ -117,7 +122,7 @@ class Board implements \Iterator, \ArrayAccess, \Countable
                 throw new BoardException('Unexpected content in row ' . $i);
             }
         }
-
+        $this->previous = $this->grid;
         $this->grid = $grid;
     }
 
@@ -338,6 +343,17 @@ class Board implements \Iterator, \ArrayAccess, \Countable
     public function toString()
     {
         return $this->__toString();
+    }
+    
+    /**
+     * Returns wheether the current board is 'boring', or identical to the 
+     * previous board.
+     * 
+     * @return boolean
+     */
+    public function isBoring()
+    {
+        return $this->grid === $this->previous;
     }
 }
 
