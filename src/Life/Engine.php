@@ -31,8 +31,9 @@ class Engine
             throw new EngineException('The supplied board must contain an initialized grid');
         }
 
-        // if the board is dead, then it's not going to magically come back to life
-        if ($board->isDead()) {
+        // if the board is dead or boring then there is no point processing a 
+        // new generation
+        if ($board->isDead() || $board->isBoring()) {
             return;
         }
 
