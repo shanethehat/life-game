@@ -96,12 +96,7 @@ class Game
      */
     public function takeTurn()
     {
-        try {
-            $this->getEngine()->updateGeneration($this->getBoard());
-        } catch (Exception $exception) {
-            // @todo need better exception handling
-            throw $exception;
-        }
+        $this->getEngine()->updateGeneration($this->getBoard());
         return $this;
     }
 }
