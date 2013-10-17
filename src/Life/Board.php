@@ -161,7 +161,7 @@ class Board implements \Iterator, \ArrayAccess, \Countable
         
         while ($line = $file->fgets()) {
             $row = str_split(trim($line));
-            array_walk($row, function (&$item, $index) {
+            array_walk($row, function (&$item) {
                 $item = ($item === '1' || $item === '0') ? (int) $item : $item;
             });
             $grid[] = $row;
