@@ -346,7 +346,7 @@ class Board implements \Iterator, \ArrayAccess, \Countable
     }
     
     /**
-     * Returns wheether the current board is 'boring', or identical to the 
+     * Returns whether the current board is 'boring', or identical to the 
      * previous board.
      * 
      * @return boolean
